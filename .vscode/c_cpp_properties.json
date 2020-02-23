@@ -1,0 +1,21 @@
+{
+  "configurations": [
+      {
+          "name": "Linux",
+          "browse": {
+              "limitSymbolsToIncludedHeaders": true,
+              "path": [
+                  "${workspaceFolder}"
+              ]
+          },
+          "includePath": [
+              "${workspaceFolder}/**",
+              "/opt/ros/kinetic/include/**",
+              "/usr/include/**"
+          ],
+          "cppStandard": "c++11",
+          "intelliSenseMode": "clang-x64"
+      }
+  ],
+  "version": 4
+}
