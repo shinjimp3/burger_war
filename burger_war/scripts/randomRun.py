@@ -14,6 +14,7 @@ import random
 
 from geometry_msgs.msg import Twist
 
+from IPython.terminal.debugger import set_trace
 
 class RandomBot():
     def __init__(self, bot_name="NoName"):
@@ -24,6 +25,9 @@ class RandomBot():
 
     def calcTwist(self):
         value = random.randint(1,1000)
+
+        set_trace()
+
         if value < 250:
             x = 0.2
             th = 0
