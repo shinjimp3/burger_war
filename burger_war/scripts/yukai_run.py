@@ -7,9 +7,14 @@ from geometry_msgs.msg import Twist
 import actionlib
 import actionlib.msg
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from geometry_msgs.msg import PoseWithCovarianceStamped
 import tf
+from std_msgs.msg import String
 
 from IPython.core.debugger import set_trace
+import numpy as np
+
+PI = 3.1416
 
 '''
 Run to target position and orientation in order
@@ -21,6 +26,10 @@ class YukaiBot():
         self.vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
         self.goal_pub = rospy.Publisher('goal', MoveBaseGoal, queue_size=1)
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+        self.pose_sub = rospy.Subscriber('amcl_pose', PoseWithCovarianceStamped, self.poseCallback)
+        self.detect_red_sub = rospy.Subscriber('enemy', String, self.detectRedCallback)
+        self.yukai_position = np.array([-1.3, 0.0])
+        self.yukai_direction = 0.0
 
     def set_goal(self, x, y, yaw):
         self.client.wait_for_server()
@@ -45,9 +54,26 @@ class YukaiBot():
         else:
             return self.client.get_result()
 
+    def detectRedCallback(self, data):
+        print(data)
+        if data == "0.0":
+            print('detect enemy go left from screen')
+            self.turn_to(PI/6)
+        if data == "1.0":
+            print('detect enemy go right from screen')
+            self.turn_to(-PI/6)
+
+    def poseCallback(self, data):
+        self.yukai_position = np.array([data.pose.pose.position.x, data.pose.pose.position.y])
+        quaternion = data.pose.pose.orientation
+        rpy = tf.transformations.euler_from_quaternion((quaternion.x, quaternion.y, quaternion.z, quaternion.w))
+        self.yukai_direction = rpy[2]
+
+    def turn_to(self, yaw):
+        self.set_goal(self.yukai_position[0], self.yukai_position[1], self.yukai_direction + yaw)
+
     def strategy(self):
         rospy.Rate(10)
-        pi = 3.1415
         # set_trace()
 
         while not rospy.is_shutdown():
@@ -56,15 +82,15 @@ class YukaiBot():
             self.set_goal(-0.5,0,0)
 
             self.set_goal(0,0.5,0)
-            self.set_goal(0,0.5,-pi/2)
-            self.set_goal(0,0.5,pi)
+            self.set_goal(0,0.5,-PI/2)
+            self.set_goal(0,0.5,PI)
             
-            self.set_goal(0.5,0,pi)
-            self.set_goal(0.80,-0.45,pi)
-            self.set_goal(0.80,0.45,pi)
+            self.set_goal(0.5,0,PI)
+            self.set_goal(0.80,-0.45,PI)
+            self.set_goal(0.80,0.45,PI)
 
-            self.set_goal(0,-0.5,pi)
-            self.set_goal(0,-0.5,pi/2)
+            self.set_goal(0,-0.5,PI)
+            self.set_goal(0,-0.5,PI/2)
             self.set_goal(0,-0.5,0)
 
 if __name__ == '__main__':

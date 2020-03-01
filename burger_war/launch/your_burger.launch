@@ -10,7 +10,9 @@
       <node pkg="burger_war" type="randomRun.py" name="randomRun" output="screen"/>
   -->
       <node pkg="burger_war" type="yukai_run.py" name="yukaiRun" output="screen"/>
-
+      <node pkg="burger_war" type="abstractCcr.py" name="abstractCcr" output="screen"/>
+      <node pkg="burger_war" type="DetectRed.py" name="DetectRed" output="screen"/>
+      
 
       <!-- END sample program node -->
       <!-- End of your space  -->
