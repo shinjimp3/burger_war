@@ -48,12 +48,11 @@ class YukaiBot():
     def strategy(self):
         rospy.Rate(10)
         pi = 3.1415
-
-        set_trace()
+        # set_trace()
 
         while not rospy.is_shutdown():
-            self.set_goal(-0.90,0.45,0)
-            self.set_goal(-0.90,-0.45,0)
+            self.set_goal(-0.80,0.45,0)
+            self.set_goal(-0.80,-0.45,0)
             self.set_goal(-0.5,0,0)
 
             self.set_goal(0,0.5,0)
@@ -61,8 +60,8 @@ class YukaiBot():
             self.set_goal(0,0.5,pi)
             
             self.set_goal(0.5,0,pi)
-            self.set_goal(0.95,-0.45,pi)
-            self.set_goal(0.90,0.45,pi)
+            self.set_goal(0.80,-0.45,pi)
+            self.set_goal(0.80,0.45,pi)
 
             self.set_goal(0,-0.5,pi)
             self.set_goal(0,-0.5,pi/2)
