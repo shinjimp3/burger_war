@@ -46,8 +46,6 @@ class YukaiBot():
 
     def set_goal(self, x, y, yaw):
         self.client.wait_for_server()
-        self.client.cancel_goal()
-
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "/map"
         goal.target_pose.header.stamp = rospy.Time.now()
@@ -70,12 +68,17 @@ class YukaiBot():
 
     def detectRedCallback(self, data):
         print(data.data)
+
         if data.data == '-1':
             return 0
         if data.data == '0.0':
+            self.client.wait_for_server()
+            self.client.cancel_all_goals()
             print('detect enemy go left from screen')
             self.turn_to(PI/6)
         if data.data == '1.0':
+            self.client.wait_for_server()
+            self.client.cancel_all_goals()
             print('detect enemy go right from screen')
             self.turn_to(-PI/6)
 

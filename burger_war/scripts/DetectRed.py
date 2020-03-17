@@ -61,7 +61,7 @@ class RandomBot(abstractCcr.AbstractCcr):
         print(msg, "?")
 
     def strategy(self):
-        #r = rospy.Rate(6) # change speed 1fps
+        r = rospy.Rate(10) #
 
         #rospy.init_node('DetectRed', anonymous=True)
         
@@ -75,7 +75,6 @@ class RandomBot(abstractCcr.AbstractCcr):
         while not rospy.is_shutdown():
             enemy = rospy.Subscriber("/image_raw", Image, self.hough)
             rospy.spin()
-
 
 if __name__ == '__main__':
     rospy.init_node('DetectRed')
