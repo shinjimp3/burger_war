@@ -30,9 +30,23 @@ class YukaiBot():
         self.detect_red_sub = rospy.Subscriber('enemy', String, self.detectRedCallback)
         self.yukai_position = np.array([-1.3, 0.0])
         self.yukai_direction = 0.0
+        self.target_pos_id = 0
+        self.target_pos = np.array([[-0.80,0.45,0],
+        [-0.80,-0.45,0],
+        [-0.5,0,0],
+        [0,0.5,0],
+        [0,0.5,-PI/2],
+        [0,0.5,PI],
+        [0.5,0,PI],
+        [0.80,-0.45,PI],
+        [0.80,0.45,PI],
+        [0,-0.5,PI],
+        [0,-0.5,PI/2],
+        [0,-0.5,0]])
 
     def set_goal(self, x, y, yaw):
         self.client.wait_for_server()
+        self.client.cancel_goal()
 
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "/map"
@@ -41,13 +55,13 @@ class YukaiBot():
         goal.target_pose.pose.position.y = y
 
         # Euler to Quartanion
-        q=tf.transformations.quaternion_from_euler(0,0,yaw)        
+        q = tf.transformations.quaternion_from_euler(0,0,yaw)
         goal.target_pose.pose.orientation.x = q[0]
         goal.target_pose.pose.orientation.y = q[1]
         goal.target_pose.pose.orientation.z = q[2]
         goal.target_pose.pose.orientation.w = q[3]
         self.client.send_goal(goal)
-        wait = self.client.wait_for_result() #ここから進まない
+        wait = self.client.wait_for_result()
         if not wait:
             rospy.logerr("Action server not available!")
             rospy.signal_shutdown("Action server not available!")
@@ -55,11 +69,13 @@ class YukaiBot():
             return self.client.get_result()
 
     def detectRedCallback(self, data):
-        print(data)
-        if data == "0.0":
+        print(data.data)
+        if data.data == '-1':
+            return 0
+        if data.data == '0.0':
             print('detect enemy go left from screen')
             self.turn_to(PI/6)
-        if data == "1.0":
+        if data.data == '1.0':
             print('detect enemy go right from screen')
             self.turn_to(-PI/6)
 
@@ -77,21 +93,14 @@ class YukaiBot():
         # set_trace()
 
         while not rospy.is_shutdown():
-            self.set_goal(-0.80,0.45,0)
-            self.set_goal(-0.80,-0.45,0)
-            self.set_goal(-0.5,0,0)
+            if self.target_pos_id > 11:
+                self.target_pos_id = 0
+            x = self.target_pos[self.target_pos_id, 0]
+            y = self.target_pos[self.target_pos_id, 1]
+            yaw = self.target_pos[self.target_pos_id, 2]
+            self.set_goal(x, y, yaw)
+            self.target_pos_id = self.target_pos_id + 1
 
-            self.set_goal(0,0.5,0)
-            self.set_goal(0,0.5,-PI/2)
-            self.set_goal(0,0.5,PI)
-            
-            self.set_goal(0.5,0,PI)
-            self.set_goal(0.80,-0.45,PI)
-            self.set_goal(0.80,0.45,PI)
-
-            self.set_goal(0,-0.5,PI)
-            self.set_goal(0,-0.5,PI/2)
-            self.set_goal(0,-0.5,0)
 
 if __name__ == '__main__':
     rospy.init_node('yukai_run') #declare node name
